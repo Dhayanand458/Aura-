@@ -38,7 +38,7 @@ const TextPopup = ({ text, onClose, onSave, isEditing = false }) => {
         <DialogFooter>
           {editMode ? (
             <>
-              <Button variant="outline" onClick={onClose}>
+              <Button variant="outline\" onClick={onClose}>
                 Cancel
               </Button>
               <Button onClick={handleSave}>Save</Button>
