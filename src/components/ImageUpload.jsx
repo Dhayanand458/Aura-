@@ -1,5 +1,7 @@
-
 import React, { useState, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { ImageIcon, Upload } from 'lucide-react';
 import ImageViewer from './ImageViewer';
 
 const ImageUpload = ({ label, image, onImageChange }) => {
@@ -63,55 +65,50 @@ const ImageUpload = ({ label, image, onImageChange }) => {
 
   return (
     <>
-      <div
+      <Card
         onClick={handleContainerClick}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
-        style={{
-          border: selected ? '2px solid blue' : focused ? '2px solid blue' : '1px solid #ccc',
-          padding: '10px',
-          margin: '5px',
-          cursor: 'pointer',
-          minHeight: '50px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: image ? '#e8f5e8' : 'white',
-          tabIndex: 0
-        }}
+        className={`
+          w-40 h-40 flex flex-col items-center justify-center cursor-pointer
+          transition-all duration-200 hover:shadow-lg
+          ${focused ? 'ring-2 ring-primary' : ''}
+          ${image ? 'bg-primary/5' : 'bg-background'}
+        `}
+        tabIndex={0}
       >
         {image ? (
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '24px', marginBottom: '5px' }}>📷</div>
-            <div style={{ fontSize: '12px', color: '#666' }}>Click to view image</div>
+          <div className="text-center space-y-2">
+            <ImageIcon className="w-8 h-8 mx-auto text-primary" />
+            <div className="text-xs text-muted-foreground">Click to view image</div>
           </div>
         ) : (
-          <span>{label}</span>
+          <div className="text-center space-y-2">
+            <Upload className="w-8 h-8 mx-auto text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">{label}</span>
+          </div>
         )}
         
         {selected && !image && (
-          <button 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={handleUploadClick}
-            style={{ 
-              marginTop: '5px',
-              padding: '5px 10px',
-              fontSize: '12px'
-            }}
+            className="mt-2"
           >
-            Click to Upload
-          </button>
+            Upload
+          </Button>
         )}
-      </div>
+      </Card>
       
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
         onChange={handleFileInput}
-        style={{ display: 'none' }}
+        className="hidden"
       />
       
       {showViewer && image && (

@@ -1,68 +1,36 @@
-
 import React from 'react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { X } from 'lucide-react';
 
 const ImageViewer = ({ imageUrl, onClose }) => {
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      backgroundColor: 'rgba(0,0,0,0.8)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 1000
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '20px',
-        maxWidth: '95%',
-        maxHeight: '95%',
-        position: 'relative',
-        overflow: 'auto',
-        borderRadius: '8px'
-      }}>
-        <button 
-          onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: '10px',
-            right: '10px',
-            background: 'rgba(0,0,0,0.7)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '50%',
-            width: '30px',
-            height: '30px',
-            fontSize: '16px',
-            cursor: 'pointer',
-            zIndex: 1001
-          }}
-        >
-          ×
-        </button>
-        
-        <div style={{
-          maxHeight: 'calc(95vh - 40px)',
-          maxWidth: 'calc(95vw - 40px)',
-          overflow: 'auto'
-        }}>
-          <img 
-            src={imageUrl} 
-            alt="Uploaded content"
-            style={{
-              display: 'block',
-              maxWidth: 'none',
-              maxHeight: 'none',
-              width: 'auto',
-              height: 'auto'
-            }}
-          />
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="max-w-[95vw] max-h-[95vh] p-0">
+        <div className="relative w-full h-full overflow-auto">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-2 top-2 z-50"
+            onClick={onClose}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+          
+          <div className="min-h-[200px] flex items-center justify-center p-4">
+            <img 
+              src={imageUrl} 
+              alt="Uploaded content"
+              className="max-w-none max-h-none"
+              style={{
+                maxWidth: 'none',
+                maxHeight: 'none'
+              }}
+            />
+          </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

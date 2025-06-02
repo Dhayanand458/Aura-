@@ -1,5 +1,7 @@
-
 import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 
 const TextPopup = ({ text, onClose, onSave, isEditing = false }) => {
   const [editText, setEditText] = React.useState(text);
@@ -12,82 +14,46 @@ const TextPopup = ({ text, onClose, onSave, isEditing = false }) => {
     onClose();
   };
 
-  const handleEdit = () => {
-    setEditMode(true);
-  };
-
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 1000
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '20px',
-        maxWidth: '80%',
-        maxHeight: '80%',
-        overflow: 'auto',
-        border: '1px solid #ccc',
-        position: 'relative'
-      }}>
-        <button 
-          onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: '5px',
-            right: '5px',
-            background: 'none',
-            border: 'none',
-            fontSize: '16px',
-            cursor: 'pointer'
-          }}
-        >
-          ×
-        </button>
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>{editMode ? 'Edit Text' : 'View Text'}</DialogTitle>
+        </DialogHeader>
         
-        {editMode ? (
-          <textarea
-            value={editText}
-            onChange={(e) => setEditText(e.target.value)}
-            style={{
-              width: '100%',
-              height: '300px',
-              marginTop: '20px'
-            }}
-          />
-        ) : (
-          <div style={{ 
-            whiteSpace: 'pre-wrap',
-            marginTop: '20px',
-            wordWrap: 'break-word'
-          }}>
-            {text}
-          </div>
-        )}
-        
-        <div style={{ marginTop: '10px' }}>
+        <div className="py-4">
+          {editMode ? (
+            <Textarea
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              className="min-h-[300px] font-mono"
+            />
+          ) : (
+            <div className="min-h-[300px] whitespace-pre-wrap break-words rounded-md border bg-muted/50 p-4 font-mono">
+              {text}
+            </div>
+          )}
+        </div>
+
+        <DialogFooter>
           {editMode ? (
             <>
-              <button onClick={handleSave}>Save</button>
-              <button onClick={onClose} style={{ marginLeft: '10px' }}>Cancel</button>
+              <Button variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button onClick={handleSave}>Save</Button>
             </>
           ) : (
             <>
-              <button onClick={handleEdit}>Edit</button>
-              <button onClick={onClose} style={{ marginLeft: '10px' }}>Close</button>
+              <Button variant="outline" onClick={() => setEditMode(true)}>
+                Edit
+              </Button>
+              <Button onClick={onClose}>Close</Button>
             </>
           )}
-        </div>
-      </div>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 

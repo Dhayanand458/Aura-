@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc } from 'firebase/firestore';
@@ -6,6 +5,11 @@ import { db } from '../config/firebase';
 import { generateAuraDates } from '../utils/auraCalculation';
 import DatePicker from '../components/DatePicker';
 import TaskItem from '../components/TaskItem';
+import { Button } from '@/components/ui/button';
+import { PlusCircle, FolderPlus } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -18,7 +22,6 @@ const Index = () => {
   const [lastEndDate, setLastEndDate] = useState(null);
 
   useEffect(() => {
-    // Listen to tasks
     const tasksQuery = query(collection(db, 'tasks'), orderBy('serialNumber'));
     const unsubscribeTasks = onSnapshot(tasksQuery, (querySnapshot) => {
       const tasksData = [];
@@ -32,7 +35,6 @@ const Index = () => {
       }
     });
 
-    // Listen to folders
     const foldersQuery = query(collection(db, 'folders'), orderBy('createdAt'));
     const unsubscribeFolders = onSnapshot(foldersQuery, (querySnapshot) => {
       const foldersData = [];
@@ -113,63 +115,66 @@ const Index = () => {
   };
 
   const handleUpdate = () => {
-    // Force re-render
     setTasks(prev => [...prev]);
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Task Manager</h1>
+    <div className="container mx-auto px-4 py-8 max-w-5xl">
+      <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+        Task Manager
+      </h1>
       
-      <div style={{ marginBottom: '20px' }}>
-        <button onClick={handleAddTask} style={{ marginRight: '10px' }}>
-          + Add Task
-        </button>
-        <button onClick={handleAddFolder}>
-          + Add Folder
-        </button>
+      <div className="flex gap-4 mb-8 justify-center">
+        <Button onClick={handleAddTask} className="gap-2">
+          <PlusCircle className="w-4 h-4" />
+          Add Task
+        </Button>
+        <Button onClick={handleAddFolder} variant="outline" className="gap-2">
+          <FolderPlus className="w-4 h-4" />
+          Add Folder
+        </Button>
       </div>
 
-      {tasks.map((task) => (
-        <TaskItem 
-          key={task.id} 
-          task={task} 
-          collectionName="tasks"
-          onUpdate={handleUpdate}
-        />
-      ))}
+      <div className="space-y-4">
+        {tasks.map((task) => (
+          <TaskItem 
+            key={task.id} 
+            task={task} 
+            collectionName="tasks"
+            onUpdate={handleUpdate}
+          />
+        ))}
 
-      {folders.map((folder) => (
-        <div 
-          key={folder.id}
-          style={{ 
-            border: '1px solid #ccc', 
-            padding: '10px', 
-            margin: '10px 0',
-            cursor: 'pointer',
-            position: 'relative'
-          }}
-          onClick={() => handleFolderClick(folder.id)}
-        >
-          {folder.name}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleFolderEdit(folder);
-            }}
-            style={{
-              position: 'absolute',
-              top: '5px',
-              right: '5px',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer'
-            }}
-          >
-            ✏️
-          </button>
-        </div>
-      ))}
+        {folders.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-2xl font-semibold mb-4">Folders</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {folders.map((folder) => (
+                <Card
+                  key={folder.id}
+                  className="hover:shadow-lg transition-shadow cursor-pointer group"
+                  onClick={() => handleFolderClick(folder.id)}
+                >
+                  <CardContent className="p-4 flex items-center justify-between">
+                    <span className="font-medium">{folder.name}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleFolderEdit(folder);
+                      }}
+                    >
+                      <PencilIcon className="w-4 h-4" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       {showDatePicker && (
         <DatePicker
@@ -179,67 +184,37 @@ const Index = () => {
         />
       )}
 
-      {showFolderInput && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            padding: '20px',
-            border: '1px solid #ccc',
-            position: 'relative'
-          }}>
-            <button 
-              onClick={() => {
-                setShowFolderInput(false);
-                setEditingFolder(null);
-                setFolderName('');
-              }}
-              style={{
-                position: 'absolute',
-                top: '5px',
-                right: '5px',
-                background: 'none',
-                border: 'none',
-                fontSize: '16px',
-                cursor: 'pointer'
-              }}
-            >
-              ×
-            </button>
-            
-            <h3>{editingFolder ? 'Edit Folder' : 'Create Folder'}</h3>
-            <input
-              type="text"
+      <Dialog open={showFolderInput} onOpenChange={setShowFolderInput}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingFolder ? 'Edit Folder' : 'Create Folder'}</DialogTitle>
+            <DialogDescription>
+              {editingFolder ? 'Update the folder name below.' : 'Enter a name for your new folder.'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <Input
               value={folderName}
               onChange={(e) => setFolderName(e.target.value)}
               placeholder="Folder name"
-              style={{ width: '200px', padding: '5px' }}
+              className="w-full"
             />
-            <div style={{ marginTop: '10px' }}>
-              <button onClick={handleFolderSave} style={{ marginRight: '10px' }}>
-                OK
-              </button>
-              <button onClick={() => {
-                setShowFolderInput(false);
-                setEditingFolder(null);
-                setFolderName('');
-              }}>
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowFolderInput(false);
+                  setEditingFolder(null);
+                  setFolderName('');
+                }}
+              >
                 Cancel
-              </button>
+              </Button>
+              <Button onClick={handleFolderSave}>Save</Button>
             </div>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -1,64 +1,44 @@
-
 import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 
 const DatePicker = ({ onDateSelect, onCancel, defaultDate }) => {
   const [selectedDate, setSelectedDate] = useState(
-    defaultDate ? defaultDate.toISOString().split('T')[0] : ''
+    defaultDate ? defaultDate : undefined
   );
 
   const handleOk = () => {
     if (selectedDate) {
-      onDateSelect(new Date(selectedDate));
+      onDateSelect(selectedDate);
     }
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 1000
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '20px',
-        border: '1px solid #ccc',
-        position: 'relative'
-      }}>
-        <button 
-          onClick={onCancel}
-          style={{
-            position: 'absolute',
-            top: '5px',
-            right: '5px',
-            background: 'none',
-            border: 'none',
-            fontSize: '16px',
-            cursor: 'pointer'
-          }}
-        >
-          ×
-        </button>
-        
-        <h3>Select End Date</h3>
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          min={new Date().toISOString().split('T')[0]}
-        />
-        <div style={{ marginTop: '10px' }}>
-          <button onClick={handleOk} style={{ marginRight: '10px' }}>OK</button>
-          <button onClick={onCancel}>Cancel</button>
+    <Dialog open={true} onOpenChange={() => onCancel()}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Select End Date</DialogTitle>
+        </DialogHeader>
+        <div className="py-4">
+          <Calendar
+            mode="single"
+            selected={selectedDate}
+            onSelect={setSelectedDate}
+            disabled={(date) => date < new Date()}
+            initialFocus
+          />
         </div>
-      </div>
-    </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button onClick={handleOk} disabled={!selectedDate}>
+            OK
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
